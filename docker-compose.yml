@@ -1,0 +1,31 @@
+version: '3'
+services:
+  caddy:
+    image: "elswork/arm-caddy"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "2015:2015"    
+    links:
+      - gitea
+      - wallabag
+    volumes:
+      - /opt/caddy/.caddy:/root/.caddy
+      - /opt/caddy/Caddyfile:/etc/Caddyfile
+  wallabag:
+    image: "walkingcrows/rpi-wallabag:2.3.1"
+    volumes:
+      - /opt/wallabag:/var/www/wallabag/data
+    expose:
+      - "80"
+    environment:
+      - SYMFONY__ENV__DOMAIN_NAME=https://readlater.cloud.davidmichaelross.net
+      - SYMFONY__ENV__FOSUSER_REGISTRATION=false
+  gitea:
+    image: "kunde21/gitea-arm"
+    volumes:
+      - /opt/gitea:/data
+    ports:
+      - "222:22"
+    expose:
+      - "3000"
