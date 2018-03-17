@@ -29,3 +29,9 @@ services:
       - "222:22"
     expose:
       - "3000"
+  weechat:
+    build: ./weechat
+    ports:
+      - "6502:6502"
+    expose:
+      - "6502"
