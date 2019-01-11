@@ -6,9 +6,12 @@ services:
       - "80:80"
       - "443:443"
       - "2015:2015"    
+      - "8083:8083"
     links:
       - gitea
       - wallabag
+      - onetimesecret
+    #  - calibre
     volumes:
       - /opt/caddy/.caddy:/root/.caddy
       - /opt/caddy/Caddyfile:/etc/Caddyfile
@@ -29,9 +32,70 @@ services:
       - "222:22"
     expose:
       - "3000"
-  weechat:
-    build: ./weechat
+  embyserver:
+    image: "emby/embyserver_arm32v7_neon"
     ports:
-      - "6502:6502"
+      - "8096:8096"
+      - "8920:8920"
     expose:
-      - "6502"
+      - "8096"
+      - "8920"
+    volumes:
+      - /opt/embyserver/config:/config
+      - /mnt/media/TVShows:/mnt/tv
+      - /mnt/media/Movies:/mnt/movies
+    environment:
+      - UID=1000
+      - GID=1000
+  heimdall:
+    image: "lsioarmhf/heimdall"
+    ports:
+      - "80"
+      - "443"
+    volumes:
+      - /opt/heimdall:/config
+      - /opt/heimdall/env:/var/www/localhost/heimdall/.env
+    environment:
+      - PUID=1000
+      - PGID=1000      
+  onetimesecret:
+    image: "dismantl/onetimesecret"
+    build:
+      context: ./onetimesecret
+      dockerfile: Dockerfile
+    #restart: always
+    ports:
+      - "7143:7143"
+    volumes:
+      - '/opt/onetimesecret/config:/etc/onetime/config'
+      - '/opt/onetimesecret/redis.conf:/etc/onetime/redis.conf'
+      - '/opt/onetimesecret/redis:/var/lib/onetime/redis'
+
+  #friendup:
+  #  image: "windfisch/friendup:latest"
+  #  build:
+  #    context: .
+  #    dockerfile: friendup/Dockerfile
+  #  depends_on:
+  #      - frienddb
+  #  links:
+  #    - frienddb
+   # volumes:
+   #     - /opt/friend:/home/friend
+  #  ports:
+  #      - "6500-6505"
+  #  environment:
+  #    - DB_NAME=frienddb
+  #    - DB_USER=frienddb
+  #    - DB_PASS=agj2wevja
+  #    - DB_HOST=frienddb
+  #frienddb:
+  #  image: "hypriot/rpi-mysql"
+  #  volumes:
+  #      - /opt/friend/db:/var/lib/mysql
+  #  environment:
+  #    - MYSQL_ROOT_PASSWORD=fiwdn3823v2342[lkjsd
+  #    - MYSQL_DATABASE=frienddb
+  #    - MYSQL_USER=frienddb
+  #    - MYSQL_PASSWORD=agj2wevja
+    

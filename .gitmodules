@@ -1,0 +1,3 @@
+[submodule "onetimesecret"]
+	path = onetimesecret
+	url = ./onetimesecret
