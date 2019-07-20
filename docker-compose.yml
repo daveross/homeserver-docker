@@ -11,7 +11,7 @@ services:
       - gitea
       - wallabag
       - onetimesecret
-    #  - calibre
+      - psitransfer
     volumes:
       - /opt/caddy/.caddy:/root/.caddy
       - /opt/caddy/Caddyfile:/etc/Caddyfile
@@ -70,32 +70,39 @@ services:
       - '/opt/onetimesecret/config:/etc/onetime/config'
       - '/opt/onetimesecret/redis.conf:/etc/onetime/redis.conf'
       - '/opt/onetimesecret/redis:/var/lib/onetime/redis'
-
-  #friendup:
-  #  image: "windfisch/friendup:latest"
-  #  build:
-  #    context: .
-  #    dockerfile: friendup/Dockerfile
-  #  depends_on:
-  #      - frienddb
-  #  links:
-  #    - frienddb
-   # volumes:
-   #     - /opt/friend:/home/friend
-  #  ports:
-  #      - "6500-6505"
-  #  environment:
-  #    - DB_NAME=frienddb
-  #    - DB_USER=frienddb
-  #    - DB_PASS=agj2wevja
-  #    - DB_HOST=frienddb
-  #frienddb:
-  #  image: "hypriot/rpi-mysql"
-  #  volumes:
-  #      - /opt/friend/db:/var/lib/mysql
-  #  environment:
-  #    - MYSQL_ROOT_PASSWORD=fiwdn3823v2342[lkjsd
-  #    - MYSQL_DATABASE=frienddb
-  #    - MYSQL_USER=frienddb
-  #    - MYSQL_PASSWORD=agj2wevja
-    
+  psitransfer:
+    image: "psitrax/psitransfer"
+    build:
+      context: ./psitransfer
+      dockerfile: Dockerfile
+    ports: 
+      - "80"
+    volumes:
+      - '/opt/psitransfer/data:/data'
+#  coredns:
+#    image: "coredns/coredns"
+#    build:
+#      context: ./coredns
+#      dockerfile: Dockerfile
+#    ports:
+#      - "53:5300/udp"
+#      - "5301/udp"
+#      - "5302/udp"
+#      - "5303/udp"
+#    volumes:
+#      - '/opt/coredns/Corefile:/Corefile'
+ 
+  syncthing:
+    image: "linuxserver/syncthing"
+    environment:
+      - PUID=1000
+      - PGID=1000
+#      - UMASK_SET=022
+    volumes:
+      - /opt/syncthing:/config
+      - /mnt/syncthing:/data1
+    ports:
+      - 8384:8384
+      - 22000:22000
+      - 21027:21027/udp
+    restart: unless-stopped
