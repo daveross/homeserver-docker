@@ -6,15 +6,16 @@ services:
       - "80:80"
       - "443:443"
       - "2015:2015"    
-      - "8083:8083"
     links:
       - gitea
       - wallabag
       - onetimesecret
       - psitransfer
+      - calibre-web
     volumes:
       - /opt/caddy/.caddy:/root/.caddy
       - /opt/caddy/Caddyfile:/etc/Caddyfile
+    restart: unless-stopped 
   wallabag:
     image: "walkingcrows/rpi-wallabag:2.3.1"
     volumes:
@@ -24,6 +25,7 @@ services:
     environment:
       - SYMFONY__ENV__DOMAIN_NAME=https://readlater.cloud.davidmichaelross.net
       - SYMFONY__ENV__FOSUSER_REGISTRATION=false
+    restart: unless-stopped 
   gitea:
     image: "kunde21/gitea-arm"
     volumes:
@@ -32,6 +34,7 @@ services:
       - "222:22"
     expose:
       - "3000"
+    restart: unless-stopped 
   embyserver:
     image: "emby/embyserver_arm32v7_neon"
     ports:
@@ -47,8 +50,9 @@ services:
     environment:
       - UID=1000
       - GID=1000
+    restart: unless-stopped 
   heimdall:
-    image: "lsioarmhf/heimdall"
+    image: "linuxserver/heimdall"
     ports:
       - "80"
       - "443"
@@ -58,12 +62,13 @@ services:
     environment:
       - PUID=1000
       - PGID=1000      
+    restart: unless-stopped 
   onetimesecret:
     image: "dismantl/onetimesecret"
     build:
       context: ./onetimesecret
       dockerfile: Dockerfile
-    #restart: always
+    restart: unless-stopped 
     ports:
       - "7143:7143"
     volumes:
@@ -79,24 +84,13 @@ services:
       - "80"
     volumes:
       - '/opt/psitransfer/data:/data'
-#  coredns:
-#    image: "coredns/coredns"
-#    build:
-#      context: ./coredns
-#      dockerfile: Dockerfile
-#    ports:
-#      - "53:5300/udp"
-#      - "5301/udp"
-#      - "5302/udp"
-#      - "5303/udp"
-#    volumes:
-#      - '/opt/coredns/Corefile:/Corefile'
- 
+    restart: unless-stopped 
   syncthing:
     image: "linuxserver/syncthing"
     environment:
       - PUID=1000
       - PGID=1000
+      - TZ=America/New_York
 #      - UMASK_SET=022
     volumes:
       - /opt/syncthing:/config
@@ -105,4 +99,17 @@ services:
       - 8384:8384
       - 22000:22000
       - 21027:21027/udp
+    restart: unless-stopped 
+  calibre-web:
+    image: linuxserver/calibre-web
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /mnt/syncthing/Calibre Library:/books
+      - /opt/calibre-server:/config
+    expose:
+      - 8083
     restart: unless-stopped
+
